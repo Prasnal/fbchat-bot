@@ -1,0 +1,9 @@
+beautifulsoup4==4.6.0
+certifi==2017.7.27.1
+chardet==3.0.4
+fbchat==1.1.1
+idna==2.6
+lxml==4.1.0
+random-cat==1.0.1
+requests==2.18.4
+urllib3==1.22
