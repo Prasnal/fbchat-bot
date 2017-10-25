@@ -10,7 +10,7 @@ import config
 import schedule
 import time
 
-class EchoBot(fbchat.Client):
+class ReactionBot(fbchat.Client):
 
     def __init__(self,email, password, debug=True, user_agent=None):
         fbchat.Client.__init__(self,email, password, debug, user_agent)
@@ -38,7 +38,7 @@ class EchoBot(fbchat.Client):
 
 
 
-class MorningBot(Process, fbchat.Client):
+class EverydayMessageBot(Process, fbchat.Client):
     def __init__(self, email, password, debug=True, user_agent=None):
         fbchat.Client.__init__(self, email, password, debug, user_agent)
         self.my_schedule()
@@ -81,11 +81,11 @@ class MorningBot(Process, fbchat.Client):
             self.sendMessage(afternoon_msg, thread_id=i, thread_type=ThreadType.GROUP)
 
 
-bot = EchoBot(config.username, config.password,None,3)
+bot = ReactionBot(config.username, config.password,None,3)
 p=Process(target=bot.listen)
 p.start()
 
-bot2 = MorningBot(config.username, config.password,None,3)
+bot2 = EverydayMessageBot(config.username, config.password,None,3)
 bot2.start()
 p.join()
 bot2.join()
