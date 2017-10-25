@@ -6,4 +6,5 @@ idna==2.6
 lxml==4.1.0
 random-cat==1.0.1
 requests==2.18.4
+schedule==0.4.3
 urllib3==1.22

@@ -5,7 +5,10 @@ import random
 
 def random_quote():
     user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46'
-    conn=urlopen(Request('https://www.inc.com/dave-kerpen/365-quotes-to-inspire-you-in-2014.html',data=None, headers={'User-Agent': user_agent}))
+    try:
+        conn=urlopen(Request('https://www.inc.com/dave-kerpen/365-quotes-to-inspire-you-in-2014.html',data=None, headers={'User-Agent': user_agent}))
+    except:
+        print("quote problem")
     html_content = conn.read()
     soup=BeautifulSoup(html_content,'html.parser')
     quotes=soup.find_all('li')[114:]
@@ -13,3 +16,8 @@ def random_quote():
     return(str(quotes[number])[4:-5])
 
 
+def return_id(my_string):
+    start = my_string.find('(')
+    end = my_string.find(')')
+    my_string = my_string[start + 1:end]
+    return(my_string)

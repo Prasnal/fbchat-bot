@@ -1,10 +1,14 @@
 from functions import random_quote
+from functions import return_id
+from multiprocessing import Process
 import fbchat
 import cat
 from fbchat.models import *
 import random
 import config
 
+import schedule
+import time
 
 class EchoBot(fbchat.Client):
 
@@ -14,6 +18,7 @@ class EchoBot(fbchat.Client):
     def send_quote(self,thread_id,thread_type):
         quote=random_quote()
         self.sendMessage(quote, thread_id=thread_id, thread_type=thread_type)
+
 
     def send_cat(self,thread_id,thread_type):
         img=cat.getCat(directory=None,filename='cat',format='jpg')
@@ -27,17 +32,60 @@ class EchoBot(fbchat.Client):
         elif (msg=='!quote'):
             self.send_quote(thread_id,thread_type)
 
-
     def onMessage(self, mid, author_id, message, message_object, thread_id, thread_type, ts, metadata,msg):
-        #print(author_id)
-        #print(thread_id)
-        #print(thread_type)
-        #print(message)
         self.friendConnect(author_id)
         self.check_msg(message,thread_id,thread_type)
-        #print(self.fetchThreadList())
 
+
+
+class MorningBot(Process, fbchat.Client):
+    def __init__(self, email, password, debug=True, user_agent=None):
+        fbchat.Client.__init__(self, email, password, debug, user_agent)
+        self.my_schedule()
+
+    def my_schedule(self):
+        schedule.every().day.at("13:58").do(self.good_morning)
+        schedule.every().day.at("22:00").do(self.good_night)
+
+        while 1:
+            schedule.run_pending()
+            time.sleep(1)
+
+    def find_groups_ID(self):
+        all_messages = self.find_all_messages()
+        all_groups = [return_id(str(i)) for i in all_messages if str(i)[1] == 'G']
+        return all_groups
+
+    def find_all_messages(self):
+        new_threads = self.fetchThreadList(offset=0, limit=1, thread_location=ThreadLocation.INBOX)
+        threads = self.fetchThreadList(offset=1, limit=20, thread_location=ThreadLocation.INBOX)
+        i = 20
+        while new_threads:
+            new_threads = self.fetchThreadList(offset=i, limit=20, thread_location=ThreadLocation.INBOX)
+            threads += new_threads
+            i += 20
+        return threads
+
+    def good_morning(self):
+        morning_msg = 'Good morning everyone! Have a nice day with cats. Quotation for today: \n \n' + random_quote()
+        groups = self.find_groups_ID()
+
+        for i in groups:
+            self.sendMessage(morning_msg, thread_id=i, thread_type=ThreadType.GROUP)
+
+    def good_night(self):
+        afternoon_msg='Good night!'
+        #TODO: staty jako afternoon msg
+
+        for i in groups:
+            self.sendMessage(afternoon_msg, thread_id=i, thread_type=ThreadType.GROUP)
 
 
 bot = EchoBot(config.username, config.password,None,3)
-bot.listen()
+p=Process(target=bot.listen)
+p.start()
+
+bot2 = MorningBot(config.username, config.password,None,3)
+bot2.start()
+p.join()
+bot2.join()
